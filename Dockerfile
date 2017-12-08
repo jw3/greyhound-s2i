@@ -12,7 +12,7 @@ LABEL io.k8s.description="Greyhound Point Cloud Building and Serving Platform" \
 
 COPY s2i/bin/ /usr/libexec/s2i
 
-RUN mkdir /entwine /opt/app-root \
+RUN mkdir /opt/app-root /entwine \
  && chown -R 1001:1001 /opt/app-root /entwine /greyhound
 
 WORKDIR /opt/app-root
