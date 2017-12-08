@@ -33,3 +33,7 @@ for f in $(ls *.source); do
     fi
   done
 done
+
+echo "---> Updating index permissions"
+chgrp -R 0 /entwine
+chmod -R g+x /entwine
