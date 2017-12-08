@@ -23,5 +23,13 @@ echo "---> Installing application source..."
 cp -Rf /tmp/src/. ./
 
 echo "---> Building application from source..."
-source=$(cat sources.txt)
-entwine build -i "$source" -o /entwine
+
+for f in $(ls *.source); do
+  for s in $(cat ${f}); do
+    r=$(echo "$f" | cut -d. -f1)
+    if [ ! -z "$s" ]; then
+      echo "---> Processing point-cloud source $r::$s"
+      entwine build -i "$s" -o /entwine/wv;
+    fi
+  done
+done
