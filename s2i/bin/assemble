@@ -29,7 +29,7 @@ for f in $(ls *.source); do
     r=$(echo "$f" | cut -d. -f1)
     if [ ! -z "$s" ]; then
       echo "---> Processing point-cloud source $r::$s"
-      entwine build -i "$s" -o /entwine/wv;
+      entwine build -i "$s" -o "/entwine/$r";
     fi
   done
 done
