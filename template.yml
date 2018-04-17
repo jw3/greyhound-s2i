@@ -1,0 +1,149 @@
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: greyhound
+  annotations:
+    displayName: Greyhound
+    description: Greyhound Point Cloud server
+    tags: pointcloud
+
+parameters:
+  - name: NAME
+    displayName: Name
+    description: The name applied to objects created by this template.
+    required: true
+
+  - name: SOURCE_REPOSITORY_URL
+    displayName: Git Repository URL
+    description: The URL of the repository containing the lidar source definitions.
+    value: https://github.com/jw3/example-lidar-sources.git
+    required: true
+
+  - name: SOURCE_REPOSITORY_REF
+    displayName: Git Reference
+    description: Repository ref name.
+    value: master
+    required: true
+
+objects:
+  - kind: BuildConfig
+    apiVersion: v1
+    metadata:
+      name: ${NAME}
+    spec:
+      source:
+        type: Git
+        git:
+          uri: ${SOURCE_REPOSITORY_URL}
+          ref: ${SOURCE_REPOSITORY_REF}
+        contextDir: ""
+      strategy:
+        type: Source
+        sourceStrategy:
+          from:
+            kind: DockerImage
+            name: jwiii/greyhound-s2i:latest
+      output:
+        to:
+          kind: ImageStreamTag
+          name: ${NAME}:latest
+      triggers:
+        - type: ConfigChange
+
+  - kind: ImageStream
+    apiVersion: v1
+    metadata:
+      name: ${NAME}
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: ${NAME}
+      name: ${NAME}
+    spec:
+      ports:
+      - name: 8080-tcp
+        port: 8080
+        protocol: TCP
+        targetPort: 8080
+      selector:
+        app: ${NAME}
+        deploymentconfig: ${NAME}
+      sessionAffinity: None
+      type: ClusterIP
+    status:
+      loadBalancer: {}
+
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: ${NAME}
+      name: ${NAME}
+    spec:
+      replicas: 1
+      selector:
+        app: ${NAME}
+        deploymentconfig: ${NAME}
+      strategy:
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          labels:
+            app: ${NAME}
+            deploymentconfig: ${NAME}
+        spec:
+          containers:
+          - image: ""
+            imagePullPolicy: Always
+            name: ${NAME}
+            ports:
+            - containerPort: 8080
+              protocol: TCP
+            resources: {}
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+      test: false
+      triggers:
+      - type: ConfigChange
+      - imageChangeParams:
+          automatic: true
+          containerNames:
+          - ${NAME}
+          from:
+            kind: ImageStreamTag
+            name: ${NAME}:latest
+        type: ImageChange
+
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      name: greyhound-s2i
+    spec:
+      lookupPolicy:
+        local: false
+      tags:
+      - annotations:
+          displayName: Greyhound
+          description: Greyhound s2i builder with entwine
+          sampleRepo: https://github.com/jw3/example-lidar-sources.git
+          tags: pointcloud
+          version: latest
+        from:
+          kind: DockerImage
+          name: jwiii/greyhound-s2i:latest
+        importPolicy: {}
+        name: latest
+        referencePolicy:
+          type: Source
