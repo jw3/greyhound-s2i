@@ -1,4 +1,4 @@
-FROM connormanning/greyhound
+FROM connormanning/greyhound:alpine
 
 MAINTAINER John Wass <jwass3@gmail.com>
 
