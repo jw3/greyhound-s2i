@@ -16,6 +16,8 @@ RUN mkdir /opt/app-root /entwine \
  && chown -R 1001:0 /opt/app-root /entwine /greyhound /usr/libexec/s2i \
  && chmod -R g+rwX  /opt/app-root /entwine /greyhound /usr/libexec/s2i
 
+RUN apk add --no-cache bash gawk sed grep bc coreutils
+
 WORKDIR /opt/app-root
 
 USER 1001
