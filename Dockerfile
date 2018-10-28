@@ -10,13 +10,13 @@ LABEL io.k8s.description="Greyhound Point Cloud Building and Serving Platform" \
       io.openshift.tags="builder,greyhound,entwine,pointcloud" \
       io.openshift.s2i.scripts-url="image:///usr/libexec/s2i"
 
+RUN apk add --no-cache bash gawk sed grep bc coreutils
+
 COPY s2i/bin/ /usr/libexec/s2i
 
 RUN mkdir /opt/app-root /entwine \
  && chown -R 1001:0 /opt/app-root /entwine /greyhound /usr/libexec/s2i \
  && chmod -R g+rwX  /opt/app-root /entwine /greyhound /usr/libexec/s2i
-
-RUN apk add --no-cache bash gawk sed grep bc coreutils
 
 WORKDIR /opt/app-root
 
