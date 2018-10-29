@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 #
 # S2I assemble script for the 'greyhound-s2i' image.
 # The 'assemble' script builds your application source so that it is ready to run.
@@ -19,19 +19,17 @@ if [ "$(ls /tmp/artifacts/ 2>/dev/null)" ]; then
   mv /tmp/artifacts/. ./
 fi
 
-echo "---> Installing application source..."
+echo "---> Installing source..."
 cp -Rf /tmp/src/. ./
 
-echo "---> Building application from source..."
+echo "---> Building entwine index from source..."
 
 for f in $(ls *.source); do
-  for s in $(cat ${f}); do
-    r=$(echo "$f" | cut -d. -f1)
-    if [ ! -z "$s" ]; then
-      echo "---> Processing point-cloud source $r::$s"
-      entwine build -i "$s" -o "/entwine/$r";
-    fi
-  done
+  name=$(echo "$f" | cut -d. -f1)
+  mapfile -t inputs < ${f}
+  if [[ -f "$name.json" ]]; then json="$name.json"; fi
+  echo "---> Processing source for index $name"
+  entwine build "$json" -i ${inputs[@]} -o "/entwine/$name"
 done
 
 echo "---> Updating index permissions"
