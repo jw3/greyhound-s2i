@@ -1,8 +1,8 @@
-FROM connormanning/greyhound:alpine
+FROM jwiii/greyhound:ept
 
 MAINTAINER John Wass <jwass3@gmail.com>
 
-ENV GREYHOUND_BUILDER_VERSION 0.1
+ENV GREYHOUND_BUILDER_VERSION 2.0
 
 LABEL io.k8s.description="Greyhound Point Cloud Building and Serving Platform" \
       io.k8s.display-name="Greyound Builder" \
